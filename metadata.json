@@ -1,0 +1,6 @@
+{
+  "name": "Mais Pureza - Higienização & Limpeza Profissional",
+  "description": "Website oficial e catálogo interativo da Mais Pureza. Higienização profissional de sofás, colchões, camas, cortinados e estofos em Luanda ao domicílio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
