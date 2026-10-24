@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Link as LinkIcon, Sparkles, CheckCircle2, ChevronRight, Upload, Video, Maximize2, ShieldCheck, Flame, Phone, MapPin } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Video, Maximize2, ShieldCheck, MapPin, CheckCircle2 } from 'lucide-react';
 import { COMPANY_CONTACTS, buildWhatsAppLink } from '../data/servicesData';
 
 interface VideoTrack {
@@ -15,8 +15,8 @@ interface VideoTrack {
 const VIDEO_TRACKS: VideoTrack[] = [
   {
     id: 'video-real-mais-pureza',
-    title: 'Vídeo 1: Atendimento Real da Mais Pureza em Luanda',
-    subtitle: 'Gravação oficial da equipa: técnico uniformizado no domicílio a higienizar cortinados e estofos.',
+    title: 'Vídeo 1: Atendimento Real Mais Pureza Luanda',
+    subtitle: 'Gravação oficial da equipa: técnico com farda oficial da Mais Pureza no domicílio em Luanda a higienizar cortinados e estofos.',
     url: '/assets/aistudio/WhatsApp_Video_2026-10-24_at_18.33.32_1dc453fe.mp4',
     poster: '/src/assets/images/hero_technician_angola_1792860733256.jpg',
     durationText: '0:10',
@@ -45,7 +45,6 @@ const VIDEO_TRACKS: VideoTrack[] = [
 export const ScrollVideoShowcase: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -54,8 +53,6 @@ export const ScrollVideoShowcase: React.FC = () => {
   const [duration, setDuration] = useState(10);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [controlMode, setControlMode] = useState<'video' | 'scroll'>('video');
-  const [customUrlInput, setCustomUrlInput] = useState('');
-  const [showConfigModal, setShowConfigModal] = useState(false);
   const [currentVideoSrc, setCurrentVideoSrc] = useState(VIDEO_TRACKS[0].url);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -159,33 +156,6 @@ export const ScrollVideoShowcase: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [controlMode]);
 
-  const handleApplyCustomUrl = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customUrlInput.trim()) {
-      setCurrentVideoSrc(customUrlInput.trim());
-      setShowConfigModal(false);
-      if (videoRef.current) {
-        videoRef.current.src = customUrlInput.trim();
-        videoRef.current.load();
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      }
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const blobUrl = URL.createObjectURL(file);
-      setCurrentVideoSrc(blobUrl);
-      setShowConfigModal(false);
-      if (videoRef.current) {
-        videoRef.current.src = blobUrl;
-        videoRef.current.load();
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      }
-    }
-  };
-
   const steps = [
     { title: '1. Aspiração & Remoção de Poeira Grossa', desc: 'Eliminamos poeiras acumuladas no tecido com aspirador de alto vácuo.' },
     { title: '2. Aplicação Bioquímica Antibacteriana', desc: 'Solução hospitalar biodegradável para soltar óleos, manchas e ácaros.' },
@@ -238,15 +208,6 @@ export const ScrollVideoShowcase: React.FC = () => {
                 <span>{track.title}</span>
               </button>
             ))}
-
-            <button
-              onClick={() => setShowConfigModal(true)}
-              className="text-xs px-3.5 py-2.5 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
-              title="Inserir vídeo gravado pela equipa da Mais Pureza"
-            >
-              <Upload className="w-3.5 h-3.5" />
-              <span>Inserir Outro Vídeo</span>
-            </button>
           </div>
         </div>
 
@@ -480,79 +441,7 @@ export const ScrollVideoShowcase: React.FC = () => {
 
       </div>
 
-      {/* Modal: Change Video URL or Upload */}
-      {showConfigModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-white space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
-                <Video className="w-5 h-5 text-sky-400" />
-                Inserir Vídeo da Mais Pureza
-              </h3>
-              <button
-                onClick={() => setShowConfigModal(false)}
-                className="text-slate-400 hover:text-white text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Pode colar o link direto do vosso vídeo gravado (.mp4, link de nuvem ou Instagram) ou carregar o ficheiro diretamente do telemóvel/computador:
-            </p>
-
-            <form onSubmit={handleApplyCustomUrl} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  URL Direta do Vídeo (.mp4):
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://exemplo.com/video-mais-pureza.mp4"
-                  value={customUrlInput}
-                  onChange={(e) => setCustomUrlInput(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-sky-500 font-mono"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="file"
-                  accept="video/*"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-slate-600 hover:border-emerald-500 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer bg-slate-950"
-                >
-                  <Upload className="w-4 h-4 text-emerald-400" />
-                  <span>Carregar Arquivo de Vídeo do Dispositivo</span>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setShowConfigModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-medium text-slate-300 hover:text-white cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-500 cursor-pointer"
-                >
-                  Salvar e Carregar Vídeo
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
     </section>
   );
 };
+

@@ -57,8 +57,15 @@ export const BeforeAfterSection: React.FC = () => {
             onMouseUp={() => (isDragging.current = false)}
             onMouseLeave={() => (isDragging.current = false)}
             onMouseMove={handleMouseMove}
+            onTouchStart={(e) => {
+              isDragging.current = true;
+              handleMove(e.touches[0].clientX);
+            }}
+            onTouchEnd={() => (isDragging.current = false)}
             onTouchMove={handleTouchMove}
-            className="relative aspect-16/10 sm:aspect-16/9 rounded-3xl overflow-hidden shadow-2xl border-4 border-white select-none cursor-ew-resize bg-slate-900"
+            onClick={(e) => handleMove(e.clientX)}
+            style={{ touchAction: 'pan-y' }}
+            className="relative aspect-16/10 sm:aspect-16/9 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 sm:border-4 border-white select-none cursor-ew-resize bg-slate-900"
           >
             {/* "After" Image (Underneath, Full Width) */}
             <img
@@ -69,9 +76,9 @@ export const BeforeAfterSection: React.FC = () => {
             />
             
             {/* After Label */}
-            <div className="absolute top-4 right-4 bg-emerald-600/95 backdrop-blur-md text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg z-10 flex items-center gap-1.5 pointer-events-none">
-              <Check className="w-4 h-4 text-emerald-200" />
-              <span>DEPOIS: Aspecto de Novo & Puro</span>
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-600/95 backdrop-blur-md text-white text-[10px] sm:text-xs font-extrabold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-lg z-10 flex items-center gap-1 sm:gap-1.5 pointer-events-none">
+              <Check className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
+              <span>DEPOIS<span className="hidden sm:inline">: Aspecto de Novo & Puro</span></span>
             </div>
 
             {/* "Before" Image (Clipped by slider position) */}
@@ -88,9 +95,9 @@ export const BeforeAfterSection: React.FC = () => {
               />
               
               {/* Before Label */}
-              <div className="absolute top-4 left-4 bg-slate-950/90 backdrop-blur-md text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg z-10 pointer-events-none flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-amber-400" />
-                <span>ANTES: Extração da Sujidade Preta</span>
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-slate-950/90 backdrop-blur-md text-white text-[10px] sm:text-xs font-extrabold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-lg z-10 pointer-events-none flex items-center gap-1 sm:gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>ANTES<span className="hidden sm:inline">: Extração Sujidade Preta</span></span>
               </div>
             </div>
 
@@ -99,13 +106,13 @@ export const BeforeAfterSection: React.FC = () => {
               className="absolute top-0 bottom-0 w-1 bg-white shadow-2xl z-20 pointer-events-none"
               style={{ left: `${sliderPosition}%` }}
             >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-white shadow-2xl border-2 border-sky-500 flex items-center justify-center text-sky-600">
-                <ArrowLeftRight className="w-4 h-4" />
+              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white shadow-2xl border-2 border-sky-500 flex items-center justify-center text-sky-600">
+                <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
 
             {/* Helper Hint */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md text-white text-xs font-semibold px-4 py-1.5 rounded-full pointer-events-none shadow-md">
+            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md text-white text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full pointer-events-none shadow-md whitespace-nowrap">
               ⟵ Arraste para comparar ⟶
             </div>
           </div>

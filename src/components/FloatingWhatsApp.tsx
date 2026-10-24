@@ -21,11 +21,11 @@ export const FloatingWhatsApp: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 flex flex-col items-end">
       
       {/* Quick Chat Popup */}
       {isOpen && (
-        <div className="mb-3 w-80 sm:w-88 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="mb-3 w-[calc(100vw-2rem)] max-w-xs sm:max-w-sm bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">

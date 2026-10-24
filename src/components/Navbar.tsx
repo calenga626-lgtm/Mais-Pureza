@@ -47,27 +47,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenProposal, onOpenCart, cart
       </div>
 
       {/* Main Top Bar (Strict 3-zone Top Bar Contract) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-8 h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-8 h-16 sm:h-20">
           {/* Zone 1: Brand Wordmark & Icon */}
-          <a href="#" className="flex items-center gap-3 shrink-0 group">
+          <a href="#" className="flex items-center gap-2.5 sm:gap-3 shrink min-w-0 group">
             <img 
               src={COMPANY_CONTACTS.logo} 
               alt="Mais Pureza Logo" 
-              className="w-11 h-11 rounded-full object-cover shadow-xs border border-sky-100 group-hover:scale-105 transition-transform" 
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-xs border border-sky-100 group-hover:scale-105 transition-transform shrink-0" 
             />
-            <div className="flex flex-col">
-              <span className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">
+            <div className="flex flex-col min-w-0">
+              <span className="font-display text-lg sm:text-2xl font-bold tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors truncate">
                 Mais <span className="text-sky-600">Pureza</span>
               </span>
-              <span className="text-[11px] font-medium tracking-wide uppercase text-slate-500">
+              <span className="hidden sm:block text-[11px] font-medium tracking-wide uppercase text-slate-500 truncate">
                 Higienização & Limpeza Profissional
               </span>
             </div>
           </a>
 
-          {/* Zone 2: 4-5 Clean Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          {/* Zone 2: Clean Nav Links */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-medium text-slate-600">
             <a href="#ofertas" className="hover:text-sky-600 transition-colors whitespace-nowrap">
               Ofertas & Pacotes
             </a>
@@ -89,16 +89,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenProposal, onOpenCart, cart
           </nav>
 
           {/* Zone 3: Primary Action & Quick Orçamento */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-lg text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 transition-colors cursor-pointer"
+              className="relative p-2 sm:p-2.5 rounded-lg text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 transition-colors cursor-pointer"
               title="Orçamento Personalizado"
               aria-label="Orçamento Personalizado"
             >
-              <Sparkles className="w-5 h-5 text-sky-600" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-sky-600 text-white font-mono text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1.5 -right-1.5 bg-sky-600 text-white font-mono text-[10px] sm:text-xs w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
@@ -108,18 +108,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenProposal, onOpenCart, cart
               href={mainWhatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap"
             >
-              <MessageCircle className="w-4 h-4 fill-white text-emerald-600" />
-              <span>Agendar no WhatsApp</span>
+              <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-emerald-600 shrink-0" />
+              <span className="hidden sm:inline">Agendar no </span>
+              <span>WhatsApp</span>
             </a>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="lg:hidden p-1.5 sm:p-2 rounded-lg text-slate-700 hover:bg-slate-100 cursor-pointer"
               aria-label="Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>

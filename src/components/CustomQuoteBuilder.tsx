@@ -36,8 +36,8 @@ export const CustomQuoteBuilder: React.FC<CustomQuoteBuilderProps> = ({
   const discountAmount = hasDiscount ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal - discountAmount;
 
-  const handleSendToWhatsApp = () => {
-    if (items.length === 0) return;
+  const generateWhatsAppUrl = () => {
+    if (items.length === 0) return '#';
 
     let message = `*SOLICITAÇÃO DE AGENDAMENTO / ORÇAMENTO - MAIS PUREZA*\n\n`;
     if (customerName.trim()) {
@@ -62,8 +62,7 @@ export const CustomQuoteBuilder: React.FC<CustomQuoteBuilderProps> = ({
     message += `💳 *Pagamento:* A realizar via Multicaixa Express / Transferência no WhatsApp.\n`;
     message += `Por favor, confirmem as datas e horários disponíveis para o atendimento na minha residência. Obrigado!`;
 
-    const url = buildWhatsAppLink(COMPANY_CONTACTS.waNumber1, message);
-    window.open(url, '_blank');
+    return buildWhatsAppLink(COMPANY_CONTACTS.waNumber1, message);
   };
 
   return (
@@ -297,18 +296,20 @@ export const CustomQuoteBuilder: React.FC<CustomQuoteBuilderProps> = ({
             </div>
 
             {/* WhatsApp Direct Submit Button */}
-            <button
-              onClick={handleSendToWhatsApp}
-              disabled={items.length === 0}
-              className={`w-full flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer ${
+            <a
+              href={items.length > 0 ? generateWhatsAppUrl() : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-disabled={items.length === 0}
+              className={`w-full flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-xl font-bold text-sm shadow-md transition-all ${
                 items.length > 0
-                  ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white cursor-pointer'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none pointer-events-none'
               }`}
             >
               <MessageCircle className="w-5 h-5 fill-white" />
               <span>Enviar Pedido Pronto para o WhatsApp</span>
-            </button>
+            </a>
 
             <div className="space-y-1.5 text-[11px] text-slate-500">
               <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
