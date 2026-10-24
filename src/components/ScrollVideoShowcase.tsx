@@ -1,29 +1,44 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Play, Pause, Volume2, VolumeX, Link as LinkIcon, Sparkles, CheckCircle2, ChevronRight, Upload, Video, RotateCcw } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Play, Pause, Volume2, VolumeX, Link as LinkIcon, Sparkles, CheckCircle2, ChevronRight, Upload, Video, Maximize2, ShieldCheck, Flame, Phone, MapPin } from 'lucide-react';
 import { COMPANY_CONTACTS, buildWhatsAppLink } from '../data/servicesData';
 
-interface VideoPreset {
+interface VideoTrack {
   id: string;
-  name: string;
+  title: string;
+  subtitle: string;
   url: string;
   poster: string;
-  description: string;
+  durationText: string;
+  isReel?: boolean;
 }
 
-const VIDEO_PRESETS: VideoPreset[] = [
+const VIDEO_TRACKS: VideoTrack[] = [
   {
-    id: 'extracao-sofa',
-    name: 'Demonstração 1: Extração Profunda em Sofás & Estofos',
-    url: '/assets/mais_pureza_extracao.mp4',
-    poster: '/src/assets/images/hero_sofa_cleaning_action_1792751048176.jpg',
-    description: 'Máquina de injeção e extração a recolher poeiras, manchas e ácaros no tecido.'
+    id: 'video-real-mais-pureza',
+    title: 'Vídeo 1: Atendimento Real da Mais Pureza em Luanda',
+    subtitle: 'Gravação oficial da equipa: técnico uniformizado no domicílio a higienizar cortinados e estofos.',
+    url: '/assets/aistudio/WhatsApp_Video_2026-10-24_at_18.33.32_1dc453fe.mp4',
+    poster: '/src/assets/images/hero_technician_angola_1792860733256.jpg',
+    durationText: '0:10',
+    isReel: true
   },
   {
-    id: 'higienizacao-colchao',
-    name: 'Demonstração 2: Sanitização & Revitalização Têxtil',
+    id: 'extracao-sofa-luanda',
+    title: 'Vídeo 2: Extração Profunda & Remoção de Água Negra',
+    subtitle: 'Processo completo de sucção profunda a vácuo com recolha de poeiras e ácaros no estofo.',
+    url: '/assets/mais_pureza_extracao.mp4',
+    poster: '/src/assets/images/hero_technician_angola_1792860733256.jpg',
+    durationText: '0:09',
+    isReel: false
+  },
+  {
+    id: 'sanitizacao-tecidos',
+    title: 'Vídeo 3: Sanitização Hospitalar & Revitalização',
+    subtitle: 'Aplicação de fórmula ecológica antibacteriana que elimina 99,9% dos ácaros e fungos.',
     url: '/assets/mais_pureza_higienizacao.mp4',
-    poster: '/src/assets/images/before_after_sofa_clean_1792751048778.jpg',
-    description: 'Tratamento com solução ecológica hospitalar e acabamento sedoso.'
+    poster: '/src/assets/images/sofa_cleaning_black_technician_1792860734301.jpg',
+    durationText: '0:06',
+    isReel: false
   }
 ];
 
@@ -32,83 +47,54 @@ export const ScrollVideoShowcase: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [activeTrackIndex, setActiveTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [videoUrl, setVideoUrl] = useState(VIDEO_PRESETS[0].url);
-  const [currentPresetId, setCurrentPresetId] = useState(VIDEO_PRESETS[0].id);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(10);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [controlMode, setControlMode] = useState<'video' | 'scroll'>('video');
   const [customUrlInput, setCustomUrlInput] = useState('');
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [currentVideoSrc, setCurrentVideoSrc] = useState(VIDEO_TRACKS[0].url);
   const [activeStep, setActiveStep] = useState(0);
-  const [controlMode, setControlMode] = useState<'scroll' | 'autoplay'>('autoplay');
-  const [videoError, setVideoError] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
-  // Attempt autoplay on mount
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+  const activeTrack = VIDEO_TRACKS[activeTrackIndex] || VIDEO_TRACKS[0];
 
-    setVideoError(false);
-    video.muted = true;
-    setIsMuted(true);
-
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlaying(true);
-          setIsVideoLoaded(true);
-        })
-        .catch(() => {
-          // If browser restricts initial autoplay without interaction
-          setIsPlaying(false);
-        });
-    }
-  }, [videoUrl]);
-
-  // Handle scroll-driven scrubber when in scroll mode
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current || !videoRef.current) return;
-
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      const totalDist = rect.height - windowHeight;
-      const currentScroll = -rect.top;
-      
-      if (totalDist > 0) {
-        let progress = currentScroll / totalDist;
-        progress = Math.max(0, Math.min(1, progress));
+  // Sync video time updates
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+      if (videoRef.current.duration) {
+        setDuration(videoRef.current.duration);
+        const progress = videoRef.current.currentTime / videoRef.current.duration;
         setScrollProgress(progress);
 
-        // Update step index based on progress
         if (progress < 0.25) setActiveStep(0);
         else if (progress < 0.5) setActiveStep(1);
         else if (progress < 0.75) setActiveStep(2);
         else setActiveStep(3);
-
-        // If in scroll control mode, actively scrub video position
-        if (controlMode === 'scroll') {
-          const video = videoRef.current;
-          if (video.duration && !isNaN(video.duration)) {
-            const targetTime = progress * video.duration;
-            if (Math.abs(video.currentTime - targetTime) > 0.08) {
-              video.currentTime = targetTime;
-            }
-          }
-        }
       }
-    };
+    }
+  };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [controlMode]);
+  // Switch video track
+  const handleSelectTrack = (index: number) => {
+    setActiveTrackIndex(index);
+    const track = VIDEO_TRACKS[index];
+    if (track) {
+      setCurrentVideoSrc(track.url);
+      setIsPlaying(false);
+      if (videoRef.current) {
+        videoRef.current.src = track.url;
+        videoRef.current.load();
+        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
+    }
+  };
 
-  const togglePlay = () => {
+  // Toggle Play / Pause
+  const handleTogglePlay = () => {
     if (!videoRef.current) return;
     if (isPlaying) {
       videoRef.current.pause();
@@ -120,253 +106,347 @@ export const ScrollVideoShowcase: React.FC = () => {
     }
   };
 
-  const toggleMute = () => {
+  // Toggle Mute
+  const handleToggleMute = () => {
     if (!videoRef.current) return;
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
   };
 
+  // Fullscreen
+  const handleFullscreen = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.requestFullscreen) {
+      videoRef.current.requestFullscreen();
+    }
+  };
+
+  // Seek on scrubber bar
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setScrollProgress(val);
+    if (videoRef.current && videoRef.current.duration) {
+      videoRef.current.currentTime = val * videoRef.current.duration;
+      setCurrentTime(videoRef.current.currentTime);
+    }
+  };
+
+  // Scroll synchronization
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current || !videoRef.current || controlMode !== 'scroll') return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const totalDist = rect.height - windowHeight;
+      const currentScroll = -rect.top;
+
+      if (totalDist > 0) {
+        let progress = currentScroll / totalDist;
+        progress = Math.max(0, Math.min(1, progress));
+        setScrollProgress(progress);
+
+        if (videoRef.current.duration && !isNaN(videoRef.current.duration)) {
+          const targetTime = progress * videoRef.current.duration;
+          if (Math.abs(videoRef.current.currentTime - targetTime) > 0.08) {
+            videoRef.current.currentTime = targetTime;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [controlMode]);
+
   const handleApplyCustomUrl = (e: React.FormEvent) => {
     e.preventDefault();
     if (customUrlInput.trim()) {
-      setVideoUrl(customUrlInput.trim());
-      setCurrentPresetId('custom');
+      setCurrentVideoSrc(customUrlInput.trim());
       setShowConfigModal(false);
+      if (videoRef.current) {
+        videoRef.current.src = customUrlInput.trim();
+        videoRef.current.load();
+        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
     }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const localBlobUrl = URL.createObjectURL(file);
-      setVideoUrl(localBlobUrl);
-      setCurrentPresetId('uploaded');
+      const blobUrl = URL.createObjectURL(file);
+      setCurrentVideoSrc(blobUrl);
       setShowConfigModal(false);
+      if (videoRef.current) {
+        videoRef.current.src = blobUrl;
+        videoRef.current.load();
+        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
     }
   };
 
-  const selectPreset = (preset: VideoPreset) => {
-    setVideoUrl(preset.url);
-    setCurrentPresetId(preset.id);
-  };
-
   const steps = [
-    { title: '1. Diagnóstico e Aspiração Profunda', desc: 'Remoção de partículas sólidas e poeiras secas acumuladas no fundo das fibras têxteis.' },
-    { title: '2. Aplicação Bioquímica Hospitalar', desc: 'Solução enzimática biodegradável que solta gorduras, ácaros e nódoas sem desbotar o tecido.' },
-    { title: '3. Injeção e Extração de Alta Potência', desc: 'Máquina de alta sucção puxa água limpa com pressão e recolhe toda a sujidade preta no reservatório.' },
-    { title: '4. Toque Macio e Secagem em 2 a 4h', desc: 'Fibras desinfetadas, perfume agradável e secagem rápida em temperatura ambiente de Luanda.' }
+    { title: '1. Aspiração & Remoção de Poeira Grossa', desc: 'Eliminamos poeiras acumuladas no tecido com aspirador de alto vácuo.' },
+    { title: '2. Aplicação Bioquímica Antibacteriana', desc: 'Solução hospitalar biodegradável para soltar óleos, manchas e ácaros.' },
+    { title: '3. Extração Térmica de Água Negra', desc: 'A máquina injeta e suga no mesmo instante, recolhendo toda a sujidade profunda.' },
+    { title: '4. Toque Macio e Secagem em 2 a 4 Horas', desc: 'Tecido perfumado, macio e pronto para uso no mesmo dia em Luanda.' }
   ];
 
   const whatsAppActionUrl = buildWhatsAppLink(
     COMPANY_CONTACTS.waNumber1,
-    'Olá Mais Pureza! Assisti ao vídeo de demonstração no site e gostaria de agendar uma higienização no meu domicílio.'
+    'Olá Mais Pureza! Assisti ao vídeo oficial da equipa no site e gostaria de agendar uma higienização no meu domicílio em Luanda.'
   );
 
   return (
-    <section id="video-scroll" ref={containerRef} className="relative bg-slate-900 text-white py-16 lg:py-24 border-b border-slate-800">
+    <section id="video-scroll" ref={containerRef} className="relative bg-slate-950 text-white py-16 lg:py-24 border-b border-slate-800">
       
       {/* Background ambient lighting */}
-      <div className="absolute inset-0 bg-radial from-sky-900/25 via-slate-900 to-slate-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial from-sky-900/30 via-slate-950 to-slate-950 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
-        {/* Header */}
+        {/* Section Header with Creative Sales Hook */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-sky-300 bg-sky-950/80 border border-sky-800 px-3.5 py-1.5 rounded-full shadow-sm">
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-sky-400 bg-sky-950 border border-sky-800 px-4 py-1.5 rounded-full shadow-sm">
             <Video className="w-4 h-4 text-sky-400" />
-            <span>Vídeo em Movimento com Controle de Scroll</span>
+            <span>Vídeo Oficial Mais Pureza · Atendimento Real em Luanda</span>
           </div>
-          
+
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white" style={{ textWrap: 'balance' }}>
-            Veja a tecnologia de extração profunda em movimento
+            Veja a nossa equipa oficial em ação no domicílio do cliente
           </h2>
-          
+
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            O vídeo reproduz automaticamente e também acompanha a sua rolagem pela página. 
-            Você pode alternar entre demonstrações ou adicionar o vídeo gravado no Instagram/telemóvel da Mais Pureza.
+            Aqui você vê o trabalho real: técnicos com farda oficial da Mais Pureza (+244 934 963 087) a aplicar a higienização profunda em cortinados e estofos. 
+            Clique no vídeo para assistir com som!
           </p>
 
-          {/* Preset Buttons Quick Bar */}
+          {/* Video Selector Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-            {VIDEO_PRESETS.map((p) => (
+            {VIDEO_TRACKS.map((track, idx) => (
               <button
-                key={p.id}
-                onClick={() => selectPreset(p)}
-                className={`text-xs px-3.5 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
-                  currentPresetId === p.id
-                    ? 'bg-sky-600 border-sky-400 text-white shadow-md'
-                    : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+                key={track.id}
+                onClick={() => handleSelectTrack(idx)}
+                className={`text-xs px-4 py-2.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                  activeTrackIndex === idx
+                    ? 'bg-sky-600 text-white shadow-lg border border-sky-400 ring-2 ring-sky-500/20'
+                    : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-700'
                 }`}
               >
-                {p.name.split(':')[0]}
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>{track.title}</span>
               </button>
             ))}
-            
+
             <button
               onClick={() => setShowConfigModal(true)}
-              className="text-xs px-3 py-1.5 rounded-lg border border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="text-xs px-3.5 py-2.5 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Inserir vídeo gravado pela equipa da Mais Pureza"
             >
-              <LinkIcon className="w-3.5 h-3.5" />
-              <span>Colar Vídeo da Mais Pureza</span>
+              <Upload className="w-3.5 h-3.5" />
+              <span>Inserir Outro Vídeo</span>
             </button>
           </div>
         </div>
 
-        {/* Video Player Main Viewport */}
-        <div className="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-2xl">
+        {/* Video Player Container */}
+        <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden border-2 border-slate-700 bg-slate-900 shadow-2xl">
           
-          <div className="relative aspect-16/9 w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+          <div className="grid lg:grid-cols-12 items-center bg-black">
             
-            {/* HTML5 Video Element with local high-quality MP4 */}
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              muted={isMuted}
-              playsInline
-              loop
-              autoPlay
-              preload="auto"
-              className="w-full h-full object-cover"
-              onError={() => setVideoError(true)}
-              onLoadedData={() => {
-                setIsVideoLoaded(true);
-                setVideoError(false);
-              }}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
+            {/* Left Column / Reel Screen: Vertical/Responsive Video Screen */}
+            <div className="lg:col-span-7 relative bg-black flex items-center justify-center min-h-[380px] sm:min-h-[500px] overflow-hidden group">
+              
+              {/* Blurred Ambient Background Mirroring the Video */}
+              <video
+                src={currentVideoSrc}
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-40 scale-125 pointer-events-none"
+              />
 
-            {/* Fallback Animated Scene if video fails to load in sandboxed environment */}
-            {videoError && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900">
-                <img
-                  src="/src/assets/images/hero_sofa_cleaning_action_1792751048176.jpg"
-                  alt="Extração Profunda"
-                  className="absolute inset-0 w-full h-full object-cover opacity-60"
-                />
-                <div className="relative z-10 max-w-md bg-slate-950/90 p-5 rounded-xl border border-slate-700 text-white space-y-2">
-                  <div className="flex items-center justify-center gap-2 text-sky-400 font-bold text-sm">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Demonstração de Extração Mais Pureza</span>
+              {/* Main Visible Video */}
+              <video
+                ref={videoRef}
+                src={currentVideoSrc}
+                poster={activeTrack.poster}
+                muted={isMuted}
+                playsInline
+                loop
+                preload="auto"
+                onTimeUpdate={handleTimeUpdate}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                className="relative z-10 max-h-[520px] w-auto max-w-full rounded-2xl shadow-2xl cursor-pointer object-contain"
+                onClick={handleTogglePlay}
+              />
+
+              {/* Central Play Button Overlay when Paused */}
+              {!isPlaying && (
+                <div 
+                  className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex flex-col items-center justify-center transition-all z-20 cursor-pointer"
+                  onClick={handleTogglePlay}
+                >
+                  <div className="w-20 h-20 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+                    <Play className="w-9 h-9 fill-white ml-1" />
                   </div>
-                  <p className="text-xs text-slate-300">
-                    O navegador restringiu a reprodução direta. Clique abaixo para reiniciar ou colar o link do seu vídeo.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setVideoError(false);
-                      setVideoUrl(VIDEO_PRESETS[0].url);
-                    }}
-                    className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs"
-                  >
-                    Tentar Novamente
-                  </button>
+                  <span className="mt-4 font-bold text-xs sm:text-sm tracking-wide text-white uppercase bg-slate-900/90 px-4 py-1.5 rounded-full border border-slate-700 shadow-lg">
+                    Clique para Assistir ao Vídeo Oficial
+                  </span>
+                </div>
+              )}
+
+              {/* Top Live Badge */}
+              <div className="absolute top-4 left-4 bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-sky-400 z-20 flex items-center gap-2 pointer-events-none">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="font-bold">Vídeo Gravado em Luanda</span>
+              </div>
+
+              {/* Top Right Duration */}
+              <div className="absolute top-4 right-4 bg-slate-950/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-slate-700 text-xs text-slate-300 z-20 font-mono pointer-events-none">
+                {Math.floor(currentTime)}s / {Math.floor(duration)}s
+              </div>
+            </div>
+
+            {/* Right Column: Live Context & Direct WhatsApp Booking */}
+            <div className="lg:col-span-5 p-6 sm:p-8 bg-slate-900 space-y-5 border-t lg:border-t-0 lg:border-l border-slate-800">
+              
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+                  Atendimento Verificado
+                </span>
+                <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
+                  {activeTrack.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                  {activeTrack.subtitle}
+                </p>
+              </div>
+
+              {/* Uniform verification callout */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+                <div className="flex items-center gap-2 text-sky-400 font-bold">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Identificação Oficial Mais Pureza</span>
+                </div>
+                <p className="text-slate-400 text-[11px] leading-relaxed">
+                  Os nossos técnicos comparecem ao domicílio devidamente fardados com os contactos oficiais nas costas: 
+                  <strong className="text-white block mt-0.5 font-mono">+244 934 963 087 · +244 934 963 158</strong>
+                </p>
+              </div>
+
+              {/* Active Step Real-Time Indicator */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block">
+                  Etapa Atual do Processo:
+                </span>
+                <div className="p-3 rounded-lg bg-sky-950/60 border border-sky-800 text-xs text-sky-200">
+                  <strong className="text-white block">{steps[activeStep].title}</strong>
+                  <span className="text-[11px] text-slate-300">{steps[activeStep].desc}</span>
                 </div>
               </div>
-            )}
 
-            {/* Soft Ambient Scrim */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/30 pointer-events-none" />
-
-            {/* Live Step Badge Overlay */}
-            <div className="absolute top-4 left-4 right-4 sm:right-auto max-w-sm sm:max-w-md bg-slate-900/90 backdrop-blur-md p-3.5 rounded-xl border border-slate-700 text-left shadow-lg pointer-events-none z-10">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase text-sky-400">
-                <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
-                <span>Mais Pureza ao Domicílio · {steps[activeStep].title}</span>
-              </div>
-              <p className="text-xs text-slate-200 mt-1 leading-snug">
-                {steps[activeStep].desc}
-              </p>
-            </div>
-
-            {/* Top Right Live Badge */}
-            <div className="absolute top-4 right-4 hidden sm:flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300 z-10">
-              <span className="font-mono text-sky-400 font-bold">{Math.round(scrollProgress * 100)}%</span>
-              <span>posição no scroll</span>
-            </div>
-
-            {/* Bottom Controls Bar */}
-            <div className="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/90 backdrop-blur-md p-3 rounded-xl border border-slate-700 z-10">
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={togglePlay}
-                  className="p-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition-colors cursor-pointer"
-                  title={isPlaying ? 'Pausar' : 'Reproduzir'}
+              {/* WhatsApp Conversion Action */}
+              <div className="pt-2 space-y-2">
+                <a
+                  href={whatsAppActionUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all"
                 >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
-                </button>
+                  <Play className="w-4 h-4 fill-white text-emerald-600" />
+                  <span>Agendar Higienização no WhatsApp</span>
+                </a>
 
-                <button
-                  onClick={toggleMute}
-                  className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                  title={isMuted ? 'Ativar Som' : 'Silenciar'}
-                >
-                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                </button>
-
-                {/* Control Mode Toggle */}
-                <button
-                  onClick={() => {
-                    if (controlMode === 'scroll') {
-                      setControlMode('autoplay');
-                      if (videoRef.current) {
-                        videoRef.current.play().catch(console.error);
-                      }
-                      setIsPlaying(true);
-                    } else {
-                      setControlMode('scroll');
-                      if (videoRef.current) {
-                        videoRef.current.pause();
-                      }
-                      setIsPlaying(false);
-                    }
-                  }}
-                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer ${
-                    controlMode === 'scroll'
-                      ? 'bg-sky-950 border-sky-500 text-sky-300'
-                      : 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
-                  }`}
-                >
-                  {controlMode === 'scroll' ? '🎮 Movimento por Scroll (Ativo)' : '▶ Reprodução Contínua (Ativo)'}
-                </button>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-sky-400" />
+                    Toda a Província de Luanda
+                  </span>
+                  <span>Pagamento por Multicaixa</span>
+                </div>
               </div>
-
-              {/* Progress Slider Bar */}
-              <div className="flex items-center gap-3 flex-1 sm:max-w-xs">
-                <span className="text-xs text-slate-400 font-mono">0s</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={scrollProgress}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    setScrollProgress(val);
-                    if (videoRef.current && videoRef.current.duration) {
-                      videoRef.current.currentTime = val * videoRef.current.duration;
-                    }
-                  }}
-                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500"
-                />
-                <span className="text-xs text-slate-400 font-mono">10s</span>
-              </div>
-
-              {/* Quick Config Button */}
-              <button
-                onClick={() => setShowConfigModal(true)}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors cursor-pointer"
-              >
-                <LinkIcon className="w-3.5 h-3.5 text-sky-400" />
-                <span>Colar Vídeo URL</span>
-              </button>
 
             </div>
 
           </div>
 
-          {/* Interactive Steps Matrix Below Video */}
+          {/* Bottom Custom Controls Bar */}
+          <div className="p-4 bg-slate-950 border-t border-slate-800 flex flex-col gap-3">
+            
+            {/* Scrubber Progress Bar */}
+            <div className="flex items-center gap-3 w-full">
+              <span className="text-xs font-mono text-slate-400">
+                {Math.floor(currentTime)}s
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.005"
+                value={scrollProgress}
+                onChange={handleSeek}
+                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400"
+                aria-label="Barra de progresso do vídeo"
+              />
+              <span className="text-xs font-mono text-slate-400">
+                {Math.floor(duration)}s
+              </span>
+            </div>
+
+            {/* Buttons Row */}
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleTogglePlay}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
+                  <span>{isPlaying ? 'Pausar' : 'Reproduzir'}</span>
+                </button>
+
+                <button
+                  onClick={handleToggleMute}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700"
+                  title={isMuted ? 'Ativar Som do Vídeo' : 'Silenciar'}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                </button>
+
+                <button
+                  onClick={() => setControlMode(controlMode === 'video' ? 'scroll' : 'video')}
+                  className={`px-3 py-2 rounded-xl border font-bold transition-colors cursor-pointer ${
+                    controlMode === 'scroll'
+                      ? 'bg-sky-950 border-sky-400 text-sky-300'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
+                  }`}
+                  title="Permite que o vídeo avance ou recue quando rola a página"
+                >
+                  {controlMode === 'scroll' ? '✓ Modo Scroll Ativo' : 'Ativar Movimento no Scroll'}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleFullscreen}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700"
+                  title="Ecrã Cheio"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+
+                <span className="text-slate-400 text-xs hidden sm:inline">
+                  Supervisão: <strong className="text-white">Cátia Catumbela</strong>
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* 4 Steps Below Video */}
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-800 bg-slate-900 border-t border-slate-800 text-xs">
             {steps.map((st, i) => (
               <button
@@ -381,13 +461,13 @@ export const ScrollVideoShowcase: React.FC = () => {
                 }}
                 className={`p-4 text-left transition-colors cursor-pointer ${
                   activeStep === i
-                    ? 'bg-sky-950/60 text-sky-300 border-b-2 border-sky-400'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    ? 'bg-sky-950/70 text-sky-300 border-b-2 border-sky-400'
+                    : 'text-slate-400 hover:bg-slate-850 hover:text-slate-200'
                 }`}
               >
                 <div className="font-bold text-slate-200 mb-1 flex items-center justify-between">
-                  <span>{st.title}</span>
-                  {activeStep === i && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
+                  <span className="line-clamp-1">{st.title}</span>
+                  {activeStep === i && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
                 </div>
                 <p className="line-clamp-2 text-[11px] leading-relaxed text-slate-400">
                   {st.desc}
@@ -398,33 +478,16 @@ export const ScrollVideoShowcase: React.FC = () => {
 
         </div>
 
-        {/* CTA Bar below video */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-xl bg-slate-800/80 border border-slate-700">
-          <div>
-            <h4 className="font-bold text-white text-base">Quer este mesmo resultado nos sofás e colchões da sua casa?</h4>
-            <p className="text-xs text-slate-400 mt-0.5">Atendimento em Alvalade, Maianga, Talatona, Kilamba e toda a província de Luanda.</p>
-          </div>
-          <a
-            href={whatsAppActionUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition-colors"
-          >
-            <span>Pedir Agendamento no WhatsApp</span>
-            <ChevronRight className="w-4 h-4" />
-          </a>
-        </div>
-
       </div>
 
-      {/* Modal: Custom Video URL or Upload for Kátia Catumbela */}
+      {/* Modal: Change Video URL or Upload */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-white space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
                 <Video className="w-5 h-5 text-sky-400" />
-                Vídeo da Mais Pureza
+                Inserir Vídeo da Mais Pureza
               </h3>
               <button
                 onClick={() => setShowConfigModal(false)}
@@ -435,7 +498,7 @@ export const ScrollVideoShowcase: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Você pode colar a URL de qualquer vídeo da Mais Pureza (por exemplo, um link direto MP4, vídeo do Google Drive / Cloud ou link direto do Instagram):
+              Pode colar o link direto do vosso vídeo gravado (.mp4, link de nuvem ou Instagram) ou carregar o ficheiro diretamente do telemóvel/computador:
             </p>
 
             <form onSubmit={handleApplyCustomUrl} className="space-y-3">
@@ -448,11 +511,10 @@ export const ScrollVideoShowcase: React.FC = () => {
                   placeholder="https://exemplo.com/video-mais-pureza.mp4"
                   value={customUrlInput}
                   onChange={(e) => setCustomUrlInput(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-sky-500 font-mono"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-sky-500 font-mono"
                 />
               </div>
 
-              {/* Upload file from device */}
               <div>
                 <input
                   type="file"
@@ -464,49 +526,26 @@ export const ScrollVideoShowcase: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-slate-600 hover:border-sky-500 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-slate-600 hover:border-emerald-500 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer bg-slate-950"
                 >
-                  <Upload className="w-4 h-4 text-sky-400" />
-                  <span>Carregar Ficheiro de Vídeo do Dispositivo</span>
+                  <Upload className="w-4 h-4 text-emerald-400" />
+                  <span>Carregar Arquivo de Vídeo do Dispositivo</span>
                 </button>
               </div>
 
-              <div className="space-y-2 pt-2">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                  Ou use uma demonstração pronta da plataforma:
-                </span>
-                {VIDEO_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      selectPreset(p);
-                      setShowConfigModal(false);
-                    }}
-                    className="w-full text-left p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 flex items-center justify-between transition-colors cursor-pointer"
-                  >
-                    <div>
-                      <div className="font-semibold">{p.name}</div>
-                      <div className="text-[10px] text-slate-400">{p.description}</div>
-                    </div>
-                    <span className="text-[11px] text-sky-400 font-bold shrink-0 ml-2">Usar</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setShowConfigModal(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-xs font-medium text-slate-300 hover:text-white cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-medium text-slate-300 hover:text-white cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-sky-600 text-xs font-bold text-white hover:bg-sky-500 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-500 cursor-pointer"
                 >
-                  Salvar e Atualizar
+                  Salvar e Carregar Vídeo
                 </button>
               </div>
             </form>

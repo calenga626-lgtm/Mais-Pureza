@@ -180,7 +180,7 @@ export default function App() {
         title={flyerModal.title}
       />
 
-      {/* Commercial Proposal Presentation Modal for Kátia Catumbela */}
+      {/* Commercial Proposal Presentation Modal for Cátia Catumbela */}
       <ProposalModal
         isOpen={isProposalOpen}
         onClose={() => setIsProposalOpen(false)}

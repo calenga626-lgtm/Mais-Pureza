@@ -13,18 +13,18 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({ onViewFlyer })
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-sky-800 bg-sky-50 border border-sky-200 px-3.5 py-1.5 rounded-full">
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 px-3.5 py-1.5 rounded-full">
             <Tag className="w-3.5 h-3.5 text-sky-600" />
-            <span>Pacotes Promocionais Oficiais</span>
+            <span>Pacotes Económicos Oficiais Mais Pureza</span>
           </div>
           
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight" style={{ textWrap: 'balance' }}>
-            Renove toda a sua casa com os pacotes económicos da Mais Pureza
+            A casa inteira com cheiro a nova num só dia — Poupe até 73.000 Kz
           </h2>
           
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Economize até 73.000 Kz contratando a higienização completa num único dia. 
-            Clique no pacote para agendar diretamente pelo WhatsApp com pagamento seguro.
+            Elimine ácaros dos colchões, nódoas do sofá e pó das cortinas de uma única vez. 
+            Escolha o pacote ideal para a sua casa e clique para agendar diretamente pelo WhatsApp.
           </p>
         </div>
 

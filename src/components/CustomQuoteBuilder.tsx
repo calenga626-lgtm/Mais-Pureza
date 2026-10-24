@@ -80,7 +80,7 @@ export const CustomQuoteBuilder: React.FC<CustomQuoteBuilderProps> = ({
             Monte seu Pedido e Envie Pronto para o WhatsApp
           </h2>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Selecione as peças que deseja higienizar em casa, veja o valor total em tempo real com desconto automático e finalize o pagamento com a equipa da Kátia Catumbela no WhatsApp.
+            Selecione as peças que deseja higienizar em casa, veja o valor total em tempo real com desconto automático e finalize o pagamento com a equipa da Cátia Catumbela no WhatsApp.
           </p>
         </div>
 
@@ -313,7 +313,7 @@ export const CustomQuoteBuilder: React.FC<CustomQuoteBuilderProps> = ({
             <div className="space-y-1.5 text-[11px] text-slate-500">
               <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
                 <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>O pagamento é tratado com a equipa da Kátia no WhatsApp</span>
+                <span>O pagamento é tratado com a equipa da Cátia Catumbela no WhatsApp</span>
               </div>
               <p>Aceitamos Multicaixa Express, Transferência Bancária ou pagamento no ato com máquina no domicílio.</p>
             </div>

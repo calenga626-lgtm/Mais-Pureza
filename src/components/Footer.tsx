@@ -96,16 +96,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenProposal }) => {
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sky-300 hover:text-white transition-colors text-xs cursor-pointer font-medium"
             >
               <FileText className="w-3.5 h-3.5 text-amber-300" />
-              <span>Ver Proposta Comercial (Kátia Catumbela)</span>
+              <span>Ver Proposta Comercial (Cátia Catumbela)</span>
             </button>
           </div>
 
         </div>
 
-        {/* Bottom Bar with Mandatory Copyright to Kátia Catumbela */}
+        {/* Bottom Bar with Mandatory Copyright to Cátia Catumbela */}
         <div className="mt-12 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © 2026 <strong>Mais Pureza</strong> · Todos os direitos dessa plataforma estão reservados para <strong className="text-slate-300">Kátia Catumbela</strong>.
+            © 2026 <strong>Mais Pureza</strong> · Todos os direitos dessa plataforma estão reservados para <strong className="text-slate-300">Cátia Catumbela</strong>.
           </div>
           <div className="flex items-center gap-4">
             <span>Atendimento Domiciliar em Luanda - Angola</span>

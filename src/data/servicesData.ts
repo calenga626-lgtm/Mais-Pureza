@@ -48,7 +48,7 @@ export interface FaqItem {
 export const COMPANY_CONTACTS = {
   name: 'Mais Pureza',
   subname: 'Higienização & Limpeza Profissional',
-  owner: 'Kátia Catumbela',
+  owner: 'Cátia Catumbela',
   phone1: '+244 934 963 087',
   phone2: '+244 934 963 158',
   waNumber1: '244934963087',
@@ -235,7 +235,7 @@ export const TESTIMONIALS_DATA: Testimonial[] = [
     rating: 5,
     date: 'Há 1 semana',
     service: 'Higienização de Cortinas & Camas',
-    quote: 'A comodidade de não precisar de desmontar cortinas pesadas nem transportar colchões é impagável. Fizeram todo o trabalho com o maior cuidado e em poucas horas já estava seco e com toque aveludado. A Kátia e toda a equipa estão de parabéns!',
+    quote: 'A comodidade de não precisar de desmontar cortinas pesadas nem transportar colchões é impagável. Fizeram todo o trabalho com o maior cuidado e em poucas horas já estava seco e com toque aveludado. A Empresa Mais Pureza e a sua equipa estão de parabéns!',
     verified: true
   },
   {

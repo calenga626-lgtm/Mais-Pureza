@@ -37,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenProposal, onOpenCart, cart
             <button
               onClick={onOpenProposal}
               className="hidden md:inline-flex items-center gap-1 text-sky-300 hover:text-white font-medium transition-colors cursor-pointer"
-              title="Apresentação do Projeto para Kátia Catumbela"
+              title="Apresentação do Projeto para Cátia Catumbela"
             >
               <FileText className="w-3 h-3 text-amber-300" />
               <span>Ver Proposta Comercial</span>
@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenProposal, onOpenCart, cart
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 font-medium text-sm"
             >
               <FileText className="w-4 h-4 text-amber-600" />
-              <span>Ver Apresentação da Proposta (Kátia Catumbela)</span>
+              <span>Ver Apresentação da Proposta (Cátia Catumbela)</span>
             </button>
             <a
               href={mainWhatsAppUrl}

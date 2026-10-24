@@ -12,7 +12,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({ isOpen, onClose })
 
   const proposalWhatsAppUrl = buildWhatsAppLink(
     COMPANY_CONTACTS.waNumber1,
-    `Olá Kátia Catumbela! Gostei muito da proposta e da estrutura deste website para a Mais Pureza. Gostaria de avançar com a ativação oficial.`
+    `Olá Cátia Catumbela! Gostei muito da proposta e da estrutura deste website para a Mais Pureza. Gostaria de avançar com a ativação oficial.`
   );
 
   return (
@@ -53,7 +53,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({ isOpen, onClose })
           <div className="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2">
             <div className="flex items-center gap-2 text-sky-900 font-bold text-sm">
               <Award className="w-4 h-4 text-sky-600" />
-              <span>Dedicado a: Kátia Catumbela & Equipa Mais Pureza</span>
+              <span>Dedicado a: Cátia Catumbela & Equipa Mais Pureza</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Este website foi especialmente projetado e programado para transformar a presença digital da <strong>Mais Pureza</strong> numa máquina contínua de vendas. Cada elemento visual segue rigorosamente as cores, tipografia, ofertas oficiais e catálogo real de panfletos da sua marca.
@@ -116,7 +116,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({ isOpen, onClose })
               <span>Titularidade e Direitos de Propriedade</span>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Conforme as diretrizes estabelecidas na encomenda deste projeto: <strong>Todos os direitos intelectuais, de imagem, marca comercial e código desta plataforma estão integralmente reservados para Kátia Catumbela</strong> e para a Mais Pureza - Higienização & Limpeza Profissional.
+              Conforme as diretrizes estabelecidas na encomenda deste projeto: <strong>Todos os direitos intelectuais, de imagem, marca comercial e código desta plataforma estão integralmente reservados para Cátia Catumbela</strong> e para a Mais Pureza - Higienização & Limpeza Profissional.
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({ isOpen, onClose })
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
-              <span>Aprovar / Falar com Kátia Catumbela</span>
+              <span>Aprovar / Falar com Cátia Catumbela</span>
             </a>
           </div>
         </div>
